@@ -63,7 +63,7 @@
 		# Drag/Drop
 		(macro TT_GET_PREF_BOOL		_varName="'isPositionLocked'"	_pref="BV_PREFS.DISABLE_DRAGDROP")
 		(var defaultPos:dict = "{'positionX': 290, 'positionY': (stageHeight - 400)}")
-		(macro DRAGGABLE_GET_DROP_POSITION _wndName="BV_ELEMENT_NAME" _defaults="defaultPos")
+		(macro DRAGGABLE_GET_DROP_POSITION _elementName="BV_ELEMENT_NAME" _defaultPosition="defaultPos")
 	)
 
 	(element TT_ConfigButtonElement _modIndex="10" _tooltipAlign="outerTop|outerLeft"
@@ -85,9 +85,8 @@
 			(controller $Instance renderer='ModDraggableElement'
 				(bind enabled "!isPositionLocked")
 				(args
-					_wndName="BV_ELEMENT_NAME"
-					_defaults="defaultPos"
-					_elmSize="{width: BV_ELEMENT_SIZE.WIDTH + 10, height: BV_ELEMENT_SIZE.HEIGHT}"
+					_elementName="BV_ELEMENT_NAME"
+					_defaultPosition="defaultPos"
 				)
 			)
 
