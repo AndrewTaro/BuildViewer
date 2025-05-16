@@ -38,7 +38,7 @@
 		(macro IS_SPECTATOR_MODE)
 		(var isOwnBuildOnly:bool = "!isSpectatorTrainingMode && isOwnBuildOnlyPref")
 		(var playerEntity:gfx = "$datahub.getSingleEntity(CC.playerAvatar)")
-		(var ownVehicleId:str = "playerEntity ? toString(playerEntity.vehicle.id) : ''")
+		(var ownVehicleId:str = "playerEntity && playerEntity.hasComponent(CC.vehicle) ? toString(playerEntity.vehicle.id) : ''" (event "playerEntity.evAdded")(event "playerEntity.evRemoved"))
 		(var targetId:str = "isOwnBuildOnly ? ownVehicleId : targetVehicleId")
 
 		(var buildData:dict = "targetId in buildsData ? buildsData[targetId] : {}")
