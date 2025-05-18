@@ -1,10 +1,6 @@
 (def constant BV_VISIBILITY_PREF_NAME 'buildViewer_showBuildViewer')
 (def constant TT_BUILDVIEWER_INSTALLED "true")
 
-(def constant BV_ELEMENT_SIZE {
-	WIDTH: 20,
-	HEIGHT: 20
-})
 (def constant BV_ELEMENT_NAME 'buildViewer')
 (def constant BV_COMPONENT_KEY_BUILDS 'modBuildViewerBuilds')
 (def constant BV_COMPONENT_KEY_TARGET 'modBuildViewerTarget')
