@@ -126,9 +126,7 @@
 		(var targetBuildData:dict = "isBuildAvailable ? buildsData[_vehicleId] : {}")
 
 		(macro TT_GET_LANGUAGE_INDEX)
-		(var errorTranslations:array = "TT_CONFIG_LOCALIZATIONS['IDS_TT_BUILD_NOT_AVAILABLE']")
-		(var isTranslationValid:bool = "errorTranslations.length > languageIndex && !isIn(errorTranslations[languageIndex], ['', ' '])")
-		(var errorText:str = "isTranslationValid ? errorTranslations[languageIndex] : errorTranslations[0]")
+		(macro TT_GET_TRANSLATION _varName="'errorText'" _key="'IDS_TT_BUILD_NOT_AVAILABLE'")
 
 		(var vehicleId:number = "'vehicleId' in targetBuildData ? targetBuildData.vehicleId : -1")
 		(var skills:array = "'skills' in targetBuildData ? targetBuildData.skills : []")
