@@ -56,13 +56,24 @@
 		(macro DRAGGABLE_GET_DROP_POSITION _elementName="BV_ELEMENT_NAME" _defaultPosition="defaultPos")
 	)
 
+	# FX
+	# (controller $FxInstance renderer='BV_TargetLineFX' lifetime=1.5
+	# 	(args _vehicleId="targetVehicleId" _panelX="dragPosX" _panelY="dragPosY")
+	# 	(bindcall create (bind trigger "targetVehicleId"))
+	# )
+
+	(style
+		(bind width "stageWidth")
+		(bind height "stageHeight")
+	)
+
 	(hblock
 		(style
 			(position = "absolute")
 			(bind left "dragPosX")
 			(bind top "dragPosY")
-			
 		)
+
 		# Show/Hide Button
 		(element BV_ExpandButton
 			_expanded="isExpanded"
@@ -178,7 +189,7 @@
 	)
 )
 
-(def element BV_NameElement(_vehicleId:number) layout=true
+(def element BV_NameElement(_vehicleId:str) layout=true
 	(scope
 		#player name
 		(var avatarEntity:gfx = "$datahub.getPrimaryEntity(CC.vehicleInfo, _vehicleId)")
@@ -322,10 +333,12 @@
 		(margin = [1, 1, 1, 1])
 		(bind backgroundImage "iconPath")
 		(backgroundSize = "fill")
+		(bind hitTest "signalId")
 	)
 
 	(controller $Tooltip
 		(renderer = 'SignalTooltip')
+		(bind enabled "signalId")
 		(args
 			_signalId = "signalId"
 			_amount = "0"
@@ -399,5 +412,44 @@
 		(controller $Animation
 			(bindcall play	duration=0.15	to="{rotation: targetRotation}"	(bind trigger "targetRotation"))
 		)
+	)
+)
+
+(def element BV_TargetLineFX (_vehicleId:str, _panelX:number, _panelY:number)
+	(scope
+		(var targetAvatarEntity:gfx = "$datahub.getPrimaryEntity(CC.vehicle, _vehicleId)")
+		(var screenPos:gfx = "targetAvatarEntity && targetAvatarEntity.hasComponent(CC.screenPosition) ? targetAvatarEntity.screenPosition : null" (event "targetAvatarEntity.evAdded")(event "targetAvatarEntity.evRemoved"))
+		(var targetPosX:number = "screenPos ? screenPos.position.x : 0" (event "evEnterFrame"))
+		(var targetPosY:number = "screenPos ? screenPos.position.y : 0" (event "evEnterFrame"))
+
+		(event evAddedToStage)
+	)
+
+	(bind visible "screenPos")
+	(alpha = 0)
+
+	(dispatch evAddedToStage args="{}" on='addedToStage')
+
+	(controller $Animation
+		(bindcall play
+			duration	= 0.15
+			from		= "{ alpha: 0 }"
+			to			= "{ alpha: 1 }"
+			(event "evAddedToStage")
+		)
+		(bindcall play
+			duration	= 0.15
+			delay		= 1.35
+			from		= "{ alpha: 1 }"
+			to			= "{ alpha: 0 }"
+			(event "evAddedToStage")
+		)
+	)
+
+	(.graphics
+		(bindcall clear watch=false (event "evEnterFrame"))
+		(bindcall lineStyle "0.1" "0xffffff" "0.3" caps="'round'" watch=false (event "evEnterFrame"))
+		(bindcall moveTo "_panelX" "_panelY" watch=false (event "evEnterFrame"))
+		(bindcall lineTo "targetPosX" "targetPosY" watch=false (event "evEnterFrame"))
 	)
 )
