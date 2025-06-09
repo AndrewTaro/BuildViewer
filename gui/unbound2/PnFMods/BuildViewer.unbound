@@ -141,6 +141,7 @@
 
 		(var vehicleId:number = "'vehicleId' in targetBuildData ? targetBuildData.vehicleId : -1")
 		(var skills:array = "'skills' in targetBuildData ? targetBuildData.skills : []")
+		(var usedSkillPoints:number = "'usedSkillPoints' in targetBuildData ? targetBuildData.usedSkillPoints : 0")
 		(var modernizations:array = "'modernizations' in targetBuildData ? targetBuildData.modernizations : []")
 		(var signals:array = "'signals' in targetBuildData ? targetBuildData.signals : []")
 	)
@@ -158,19 +159,20 @@
 		)
 
 		(element BV_NameElement
-			_vehicleId="vehicleId"
+			_vehicleId		 = "vehicleId"
+			_usedSkillPoints = "usedSkillPoints"
 		)
 		(macro BV_HorizontalDevider)
 		(element BV_SkillsElement
-			_skills="skills"
+			_skills = "skills"
 		)
 		(macro BV_HorizontalDevider)
 		(element BV_ModernizationsElement
-			_modernizations="modernizations"
+			_modernizations = "modernizations"
 		)
 		(macro BV_HorizontalDevider)
 		(element BV_SignalsElement
-			_signals="signals"
+			_signals = "signals"
 		)
 	)
 
@@ -189,23 +191,27 @@
 	)
 )
 
-(def element BV_NameElement(_vehicleId:str) layout=true
+(def element BV_NameElement(_vehicleId:str, _usedSkillPoints:number) layout=true
 	(scope
-		#player name
+		# Player Name
 		(var avatarEntity:gfx = "$datahub.getPrimaryEntity(CC.vehicleInfo, _vehicleId)")
 		(var avatarComponent:gfx = "avatarEntity ? avatarEntity.avatar : null")
 		(var shipName:str = "avatarComponent ? avatarComponent.ship.ref.ship.nameUpper : ''")
 		(var shipType:str = "avatarComponent ? avatarComponent.ship.ref.ship.subtype : ''")
 		(var avatarName:str = "avatarComponent ? avatarComponent.name : ''")
+
+		(var usedPoints:str = "subst('(%d/21)', [_usedSkillPoints])")
 	)
 	(hblock
 		(element BV_NameTextItem _value="avatarName")
 		(element ShipIcon "shipType")
 		(element BV_NameTextItem _value="shipName")
+		(element BV_NameTextItem _value="usedPoints")
 	)
 	(style
 		(padding = [6, 5, 6, 0])
 		(hitTest = false)
+		(align = "middle|center")
 	)
 )
 
