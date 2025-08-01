@@ -67,6 +67,8 @@
 		(bind height "stageHeight")
 	)
 
+	(bind visible "!isSpectatorTrainingMode")
+
 	(hblock
 		(style
 			(position = "absolute")
