@@ -5,6 +5,9 @@
 (def constant BV_COMPONENT_KEY_BUILDS 'modBuildViewerBuilds')
 (def constant BV_COMPONENT_KEY_TARGET 'modBuildViewerTarget')
 
+(def constant BV_TARGET_LINE_APPEAR_DURATION 0.5)
+(def constant BV_TARGET_LINE_DISAPPEAR_DELAY 0.5)
+
 (def constant BV_DISPLAY_MODE {
     DISABLE:    0,
     ENABLE:     1,
@@ -54,13 +57,10 @@
 		(macro TT_GET_PREF_BOOL		_varName="'isPositionLocked'"	_pref="BV_PREFS.DISABLE_DRAGDROP")
 		(var defaultPos:dict = "{'positionX': 290, 'positionY': (stageHeight - 400)}")
 		(macro DRAGGABLE_GET_DROP_POSITION _elementName="BV_ELEMENT_NAME" _defaultPosition="defaultPos")
-	)
 
-	# FX
-	# (controller $FxInstance renderer='BV_TargetLineFX' lifetime=1.5
-	# 	(args _vehicleId="targetVehicleId" _panelX="dragPosX" _panelY="dragPosY")
-	# 	(bindcall create (bind trigger "targetVehicleId"))
-	# )
+		(macro TT_GET_PREF_BOOL		_varName="'isTargetIndicatorEnabled'"	_pref="BV_PREFS.TARGET_INDICATOR")
+		(var indicatorStartY:number = "dragPosY < (stageHeight / 2 - 200) ? 100% : 0%")
+	)
 
 	(style
 		(bind width "stageWidth")
@@ -72,6 +72,12 @@
 			(position = "absolute")
 			(bind left "dragPosX")
 			(bind top "dragPosY")
+		)
+
+		(controller $Instance renderer='BV_TargetLine'
+			(bind enabled "isExpanded && isTargetIndicatorEnabled")
+			(args _vehicleId="targetVehicleId" _top="indicatorStartY")
+			(bindcall recreate (bind trigger "targetVehicleId"))
 		)
 
 		# Show/Hide Button
@@ -421,41 +427,72 @@
 	)
 )
 
-(def element BV_TargetLineFX (_vehicleId:str, _panelX:number, _panelY:number)
+(def element BV_TargetLine(_vehicleId:str, _top:number)
+	(controller $FxInstance renderer='BV_TargetLineFX' lifetime="BV_TARGET_LINE_APPEAR_DURATION + BV_TARGET_LINE_DISAPPEAR_DELAY + BV_TARGET_LINE_APPEAR_DURATION"
+		(args _vehicleId="_vehicleId")
+		(bindcall create init=true)
+	)
+	(style
+		(bind top "_top")
+		(left = 50%)
+		(position = "absolute")
+		(hitTest = false)
+	)
+)
+
+(def element BV_TargetLineFX (_vehicleId:str)
 	(scope
 		(var targetAvatarEntity:gfx = "$datahub.getPrimaryEntity(CC.vehicle, _vehicleId)")
 		(var screenPos:gfx = "targetAvatarEntity && targetAvatarEntity.hasComponent(CC.screenPosition) ? targetAvatarEntity.screenPosition : null" (event "targetAvatarEntity.evAdded")(event "targetAvatarEntity.evRemoved"))
-		(var targetPosX:number = "screenPos ? screenPos.position.x : 0" (event "evEnterFrame"))
-		(var targetPosY:number = "screenPos ? screenPos.position.y : 0" (event "evEnterFrame"))
+		(var targetPosX:number = "screenPos ? screenPos.position.x : 0" watch=false (event "evEnterFrame"))
+		(var targetPosY:number = "screenPos ? screenPos.position.y : 0" watch=false (event "evEnterFrame"))
+
+		(var endX:number = "targetPosX - $globalLayoutBounds[0]" watch=false (event "evEnterFrame"))
+		(var endY:number = "targetPosY - $globalLayoutBounds[1]" watch=false (event "evEnterFrame"))
+
+		(var angle:number = "radToGrad( atan2(endY, endX) )" watch=false (event "evEnterFrame"))
+		(var size:number = "sqrt( pow(endX, 2) + pow(endY, 2))" watch=false (event "evEnterFrame"))
 
 		(event evAddedToStage)
 	)
 
 	(bind visible "screenPos")
-	(alpha = 0)
+
+	(style
+		(bind rotation "angle")
+		(position = "absolute")
+		(alpha = 0)
+	)
 
 	(dispatch evAddedToStage args="{}" on='addedToStage')
 
 	(controller $Animation
 		(bindcall play
-			duration	= 0.15
+			duration	= "BV_TARGET_LINE_APPEAR_DURATION"
 			from		= "{ alpha: 0 }"
 			to			= "{ alpha: 1 }"
 			(event "evAddedToStage")
 		)
 		(bindcall play
-			duration	= 0.15
-			delay		= 1.35
+			duration	= "BV_TARGET_LINE_APPEAR_DURATION"
+			delay		= "BV_TARGET_LINE_DISAPPEAR_DELAY"
 			from		= "{ alpha: 1 }"
 			to			= "{ alpha: 0 }"
 			(event "evAddedToStage")
 		)
 	)
 
-	(.graphics
-		(bindcall clear watch=false (event "evEnterFrame"))
-		(bindcall lineStyle "0.1" "0xffffff" "0.3" caps="'round'" watch=false (event "evEnterFrame"))
-		(bindcall moveTo "_panelX" "_panelY" watch=false (event "evEnterFrame"))
-		(bindcall lineTo "targetPosX" "targetPosY" watch=false (event "evEnterFrame"))
+	(block
+		(style
+			(width = 1px)
+			(scaleY = -1)
+			(pivotY = 100%)
+			(position = "absolute")
+			(rotation = 90) # Make it horizontal because the original image is created as a vertical indicator.
+			(bind height "size")
+			(backgroundImage = "'url:../battle_hud/markers/submarine/fill_submarine_depth_info.png'")
+			(backgroundSize = "fill")
+			(scale9grid = [0, 0, 32, 64])
+		)	
 	)
 )
