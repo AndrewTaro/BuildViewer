@@ -55,7 +55,7 @@
 
 		# Drag/Drop
 		(macro TT_GET_PREF_BOOL		_varName="'isPositionLocked'"	_pref="BV_PREFS.DISABLE_DRAGDROP")
-		(var defaultPos:dict = "{'positionX': 290, 'positionY': (stageHeight - 400)}")
+		(var defaultPos:dict = "{'positionX': 290, 'positionY': (stageHeight - 450)}")
 		(macro DRAGGABLE_GET_DROP_POSITION _elementName="BV_ELEMENT_NAME" _defaultPosition="defaultPos")
 
 		(macro TT_GET_PREF_BOOL		_varName="'isTargetIndicatorEnabled'"	_pref="BV_PREFS.TARGET_INDICATOR")
@@ -76,7 +76,7 @@
 
 		(controller $Instance renderer='BV_TargetLine'
 			(bind enabled "isExpanded && isTargetIndicatorEnabled")
-			(args _vehicleId="targetVehicleId" _top="indicatorStartY")
+			(args _vehicleId="targetVehicleId" _panelX="dragPosX" _panelY="dragPosY")
 			(bindcall recreate (bind trigger "targetVehicleId"))
 		)
 
@@ -153,7 +153,7 @@
 	)
 
 	(style
-		(width = "400")
+		(width = 400px)
 		(align = "center|middle")
 	)
 
@@ -427,34 +427,49 @@
 	)
 )
 
-(def element BV_TargetLine(_vehicleId:str, _top:number)
+(def element BV_TargetLine(_vehicleId:str, _panelX:number, _panelY:number)
 	(controller $FxInstance renderer='BV_TargetLineFX' lifetime="BV_TARGET_LINE_APPEAR_DURATION + BV_TARGET_LINE_DISAPPEAR_DELAY + BV_TARGET_LINE_APPEAR_DURATION"
-		(args _vehicleId="_vehicleId")
+		(args _vehicleId="_vehicleId" _panelX="_panelX" _panelY="_panelY")
 		(bindcall create init=true)
 	)
 	(style
-		(bind top "_top")
+		(top = 50%)
 		(left = 50%)
 		(position = "absolute")
 		(hitTest = false)
 	)
 )
 
-(def element BV_TargetLineFX (_vehicleId:str)
+(def element BV_TargetLineFX (_vehicleId:str, _panelX:number, _panelY:number)
 	(scope
+		(event evAddedToStage)
+		(event evUpdatePosition)
+
 		(var targetAvatarEntity:gfx = "$datahub.getPrimaryEntity(CC.vehicle, _vehicleId)")
 		(var screenPos:gfx = "targetAvatarEntity && targetAvatarEntity.hasComponent(CC.screenPosition) ? targetAvatarEntity.screenPosition : null" (event "targetAvatarEntity.evAdded")(event "targetAvatarEntity.evRemoved"))
-		(var targetPosX:number = "screenPos ? screenPos.position.x : 0" watch=false (event "evEnterFrame"))
-		(var targetPosY:number = "screenPos ? screenPos.position.y : 0" watch=false (event "evEnterFrame"))
+		(var targetPosX:number = "screenPos ? screenPos.position.x : 0" watch=false (event "evUpdatePosition"))
+		(var targetPosY:number = "screenPos ? screenPos.position.y : 0" watch=false (event "evUpdatePosition"))
 
-		(var endX:number = "targetPosX - $globalLayoutBounds[0]" watch=false (event "evEnterFrame"))
-		(var endY:number = "targetPosY - $globalLayoutBounds[1]" watch=false (event "evEnterFrame"))
+		(var centerX:number = "$globalLayoutBounds[0]" watch=false (event "evUpdatePosition"))
+		(var centerY:number = "$globalLayoutBounds[1]" watch=false (event "evUpdatePosition"))
 
-		(var angle:number = "radToGrad( atan2(endY, endX) )" watch=false (event "evEnterFrame"))
-		(var size:number = "sqrt( pow(endX, 2) + pow(endY, 2))" watch=false (event "evEnterFrame"))
+		(var halfPanelW:number = "centerX - _panelX")
+		(var halfPanelH:number = "centerY - _panelY")
 
-		(event evAddedToStage)
+		(var endX:number = "targetPosX - centerX" watch=false (event "evUpdatePosition"))
+		(var endY:number = "targetPosY - centerY" watch=false (event "evUpdatePosition"))
+
+		(var distToXBorder:number ="endX ? abs(halfPanelW / endX) : 0xffffffff" watch=false (event "evUpdatePosition"))
+		(var distToYBorder:number ="endY ? abs(halfPanelH / endY) : 0xffffffff" watch=false (event "evUpdatePosition"))
+
+		(var angle:number = "radToGrad( atan2(endY, endX) )" watch=false (event "evUpdatePosition"))
+		(var totalLength:number = "sqrt( pow(endX, 2) + pow(endY, 2))" watch=false (event "evUpdatePosition"))
+		(var marginRatio:number ="min( distToXBorder, distToYBorder )" watch=false (event "evUpdatePosition"))
+		(var lineMargin:number = "totalLength * marginRatio" watch=false (event "evUpdatePosition"))
+		(var lineSize:number = "totalLength - lineMargin" watch=false (event "evUpdatePosition"))
 	)
+
+	(dispatch evUpdatePosition args="{}" watch=false (bind enabled "screenPos") (event "evEnterFrame"))
 
 	(bind visible "screenPos")
 
@@ -489,7 +504,8 @@
 			(pivotY = 100%)
 			(position = "absolute")
 			(rotation = 90) # Make it horizontal because the original image is created as a vertical indicator.
-			(bind height "size")
+			(bind marginLeft "lineMargin")
+			(bind height "lineSize")
 			(backgroundImage = "'url:../battle_hud/markers/submarine/fill_submarine_depth_info.png'")
 			(backgroundSize = "fill")
 			(scale9grid = [0, 0, 32, 64])
