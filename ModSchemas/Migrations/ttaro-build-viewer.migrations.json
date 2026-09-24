@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 5,
+  "opVocabularyVersion": 3,
+  "slug": "build-viewer",
+  "migrations": [
+    {
+      "version": 1,
+      "description": "flat keys → dotted ancestry keys; legacy values decoded and folded onto the derived keys",
+      "ops": [
+        {
+          "op": "rename",
+          "from": "buildViewerDisableAllyBuilds",
+          "to": "buildViewer.hideOthers"
+        },
+        {
+          "op": "rename",
+          "from": "buildViewerDisableDragDrop",
+          "to": "buildViewer.disableDragDrop"
+        },
+        {
+          "op": "rename",
+          "from": "buildViewerDisplayMode",
+          "to": "buildViewer.displayMode"
+        },
+        {
+          "op": "rename",
+          "from": "buildViewerTargetIndicatorVisible",
+          "to": "buildViewer.showTargetIndicator"
+        },
+        {
+          "op": "transform",
+          "transform": "compose",
+          "to": "buildViewer.background.alpha",
+          "sources": [
+            {
+              "key": "buildViewerBackgroundOpacity"
+            }
+          ],
+          "value": {
+            "add": [
+              0,
+              {
+                "mul": [
+                  {
+                    "round": {
+                      "src": 0
+                    }
+                  },
+                  0.1
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "op": "transform",
+          "transform": "compose",
+          "to": "buildViewer.scale",
+          "sources": [
+            {
+              "key": "buildViewerScale"
+            }
+          ],
+          "value": {
+            "add": [
+              0.5,
+              {
+                "mul": [
+                  {
+                    "round": {
+                      "src": 0
+                    }
+                  },
+                  0.1
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "legacyPositions": [
+    {
+      "key": "buildViewer.position",
+      "element": "buildViewer"
+    }
+  ]
+}

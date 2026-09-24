@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 5,
+  "id": "cmtkswuwr000av0149to0713k",
+  "author": "ttaro",
+  "modName": "Build Viewer",
+  "slug": "build-viewer",
+  "order": 10,
+  "tree": [
+    {
+      "kind": "group",
+      "key": "cmtktam6t0080v0d4pvtyoja6",
+      "display": "section",
+      "label": "IDS_TT_TITLE_GENERAL",
+      "collapse": "expanded",
+      "children": [
+        {
+          "kind": "setting",
+          "control": "slider",
+          "key": "buildViewer.scale",
+          "label": "IDS_TT_UI_SCALE",
+          "default": 1,
+          "min": 0.5,
+          "max": 1.5,
+          "step": 0.1
+        },
+        {
+          "kind": "setting",
+          "control": "toggle",
+          "key": "buildViewer.disableDragDrop",
+          "label": "IDS_TT_DISABLE_DRAG_DROP",
+          "hint": {
+            "text": "IDS_TT_HINT_DISABLE_DRAG_DROP"
+          },
+          "default": false
+        },
+        {
+          "kind": "setting",
+          "control": "dropdown",
+          "key": "buildViewer.displayMode",
+          "label": "IDS_TT_DISPLAY_MODE",
+          "hint": {
+            "text": "IDS_TT_HINT_DISPLAY_MODE"
+          },
+          "default": 1,
+          "options": [
+            {
+              "value": 0,
+              "phrase": "IDS_TURN_OFF"
+            },
+            {
+              "value": 1,
+              "phrase": "IDS_TURN_ON"
+            },
+            {
+              "value": 2,
+              "phrase": "IDS_ALT_VISION_MODE_1",
+              "icon": "CMD_ICONS"
+            }
+          ],
+          "optionStyle": "KEY"
+        },
+        {
+          "kind": "setting",
+          "control": "toggle",
+          "key": "buildViewer.hideOthers",
+          "label": "IDS_TT_DISABLE_ALLY_BUILDS",
+          "default": false
+        },
+        {
+          "kind": "setting",
+          "control": "position",
+          "key": "buildViewer.position",
+          "label": "IDS_TT_DRAGDROP_RESET",
+          "hint": {
+            "text": "IDS_TT_HINT_DRAGDROP_RESET"
+          },
+          "defaultPosition": {
+            "x": {
+              "anchor": "left",
+              "offset": 290
+            },
+            "y": {
+              "anchor": "bottom",
+              "offset": 150
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "group",
+      "key": "cmtktamit00hqv0d4e7qy7lz2",
+      "display": "section",
+      "label": "IDS_TT_TITLE_BACKGROUND",
+      "collapse": "expanded",
+      "children": [
+        {
+          "kind": "setting",
+          "control": "slider",
+          "key": "buildViewer.background.alpha",
+          "label": "IDS_TT_OPACITY",
+          "default": 0.4,
+          "min": 0,
+          "max": 1,
+          "step": 0.1
+        }
+      ]
+    },
+    {
+      "kind": "group",
+      "key": "cmtktam45005pv0d4fbr0vsmb",
+      "display": "section",
+      "label": "IDS_TT_ADVANCED_SETTINGS",
+      "collapse": "expanded",
+      "children": [
+        {
+          "kind": "setting",
+          "control": "toggle",
+          "key": "buildViewer.showTargetIndicator",
+          "label": "IDS_TT_TARGET_INDICATOR",
+          "default": true
+        }
+      ]
+    }
+  ]
+}
