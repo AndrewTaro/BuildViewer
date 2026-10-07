@@ -5,6 +5,7 @@
   "modName": "Build Viewer",
   "slug": "build-viewer",
   "order": 10,
+  "migrationVersion": 1,
   "tree": [
     {
       "kind": "group",
